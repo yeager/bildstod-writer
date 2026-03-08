@@ -4,6 +4,85 @@ const BILDSTOD_API = '/bildstod/api/pictograms.json';
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms';
 const ARASAAC_IMG = 'https://static.arasaac.org/pictograms';
 
+// Curated Swedish word → ARASAAC pictogram ID mapping
+// Ensures common words get correct, meaningful pictograms
+const SV_WORD_MAP = {
+  // Pronouns
+  'jag': 6632, 'du': 7090, 'han': 7091, 'hon': 7089, 'vi': 9811, 'de': 9812, 'dem': 9812,
+  'mig': 6632, 'dig': 7090, 'oss': 9811, 'hen': 7089,
+  // Core AAC verbs
+  'vill': 5441, 'vill ha': 5441, 'ha': 32761, 'har': 32761, 'är': 5560, 'kan': 8297,
+  'äta': 6456, 'äter': 6456, 'dricka': 6061, 'dricker': 6061,
+  'leka': 23392, 'leker': 23392, 'spela': 23392,
+  'sova': 6479, 'sover': 6479, 'vila': 6479,
+  'gå': 7132, 'går': 7132, 'springa': 4628, 'springer': 4628,
+  'sitta': 6452, 'sitter': 6452, 'stå': 4637, 'står': 4637,
+  'se': 4607, 'ser': 4607, 'titta': 4607, 'tittar': 4607,
+  'höra': 2343, 'hör': 2343, 'lyssna': 2343, 'lyssnar': 2343,
+  'läsa': 25191, 'läser': 25191, 'skriva': 35720, 'skriver': 35720,
+  'rita': 4588, 'ritar': 4588, 'måla': 4588, 'målar': 4588,
+  'sjunga': 4590, 'sjunger': 4590, 'dansa': 6047, 'dansar': 6047,
+  'hjälpa': 32648, 'hjälper': 32648, 'behöver': 5441,
+  'gillar': 4581, 'gillar inte': 5504, 'tycker om': 4581,
+  'gör': 8297, 'göra': 8297, 'komma': 4573, 'kommer': 4573,
+  'ge': 5479, 'ger': 5479, 'ta': 5479, 'tar': 5479,
+  'öppna': 4599, 'öppnar': 4599, 'stänga': 4620, 'stänger': 4620,
+  'köpa': 5565, 'köper': 5565, 'betala': 5565,
+  // Yes/No/Basic
+  'ja': 5584, 'nej': 5526, 'tack': 6085, 'snälla': 8195, 'förlåt': 5542,
+  'hjälp': 32648, 'stopp': 7196, 'vänta': 36914,
+  'mer': 5508, 'klar': 28429, 'färdig': 28429, 'slut': 28429,
+  'bra': 4581, 'dålig': 5504, 'dåligt': 5504,
+  // Feelings
+  'glad': 35533, 'ledsen': 35545, 'arg': 35541, 'rädd': 35544, 'trött': 6479,
+  'hungrig': 6456, 'törstig': 6061, 'sjuk': 35549,
+  // People
+  'mamma': 2458, 'pappa': 2497, 'kompis': 25790, 'vän': 25790,
+  'lärare': 32446, 'barn': 2345, 'bebis': 2453, 'familj': 2452,
+  'pojke': 10278, 'flicka': 10096, 'bror': 2461, 'syster': 2454,
+  // Food & Drink
+  'mat': 4610, 'vatten': 32464, 'mjölk': 2445, 'juice': 2440,
+  'bröd': 2494, 'smörgås': 2494, 'frukt': 2447, 'grönsaker': 2448,
+  'glass': 2438, 'kaka': 2433, 'godis': 2433,
+  'frukost': 4610, 'lunch': 4610, 'middag': 4610, 'mellanmål': 4610,
+  'äpple': 2443, 'banan': 2444, 'köttbullar': 4610,
+  'kebab': 4610, 'pizza': 2439, 'pasta': 2439, 'ris': 2449,
+  'fisk': 2450, 'kyckling': 2450, 'korv': 4610,
+  // Animals
+  'hund': 7202, 'katt': 7114, 'häst': 7138, 'fågel': 2387,
+  'fisk': 2387, 'kanin': 7180, 'ko': 7128,
+  // Places
+  'skola': 32446, 'hem': 6964, 'hemma': 6964, 'hus': 6964,
+  'affär': 5565, 'butik': 5565, 'park': 36925, 'lekplats': 36925,
+  'sjukhus': 32434, 'läkare': 32434, 'bibliotek': 25191,
+  // Objects
+  'bok': 25191, 'boll': 3241, 'bil': 2339, 'buss': 2329,
+  'cykel': 2312, 'telefon': 2375, 'dator': 2370, 'iPad': 2370,
+  'stol': 6452, 'bord': 6454, 'säng': 6479, 'dörr': 4599,
+  'kläder': 8141, 'skor': 8141, 'jacka': 8141,
+  // Adjectives
+  'stor': 4658, 'liten': 4716, 'varm': 2300, 'kall': 4652,
+  'snabb': 4628, 'långsam': 4637, 'ny': 4658, 'gammal': 4716,
+  'fin': 4581, 'ful': 5504, 'rolig': 35533, 'tråkig': 35545,
+  // Time/Place
+  'nu': 36914, 'sedan': 36914, 'idag': 36914, 'imorgon': 36914,
+  'här': 6964, 'där': 6964,
+  'upp': 4658, 'ner': 4716, 'in': 4599, 'ut': 4620,
+  // Colors
+  'röd': 4677, 'blå': 4680, 'grön': 4678, 'gul': 4679,
+  'vit': 4682, 'svart': 4681,
+  // Question words
+  'vad': 6895, 'var': 6895, 'vem': 6895, 'hur': 6895, 'varför': 6895, 'när': 6895,
+  // School
+  'penna': 35720, 'papper': 35720, 'sax': 4588, 'lim': 4588,
+  // Body
+  'huvud': 2343, 'hand': 32761, 'fot': 7132, 'mage': 6456, 'öga': 4607, 'öra': 2343,
+  // Weather
+  'sol': 2300, 'regn': 4652, 'snö': 4652,
+  // Actions at school
+  'lyssna': 2343, 'räcka upp handen': 32648, 'sitt still': 6452,
+};
+
 // State
 let bildstodData = null;
 let symbolCache = new Map();
@@ -67,18 +146,29 @@ function applySettings() {
 
 // === SYMBOL LOOKUP ===
 async function findSymbol(word) {
-  const key = word.toLowerCase().trim();
+  const key = word.toLowerCase().trim().replace(/[.,!?;:'"()]/g, '');
   if (!key) return null;
   if (symbolCache.has(key)) return symbolCache.get(key);
 
   let result = null;
 
-  // 1. Search bildstöd first
+  // 1. Search bildstöd first (Swedish/NPF-specific)
   if (settings.sourceBildstod && bildstodData) {
     result = searchBildstod(key);
   }
 
-  // 2. Fall back to ARASAAC
+  // 2. Check curated Swedish word map (ensures correct pictograms)
+  if (!result && settings.sourceArasaac && SV_WORD_MAP[key]) {
+    const id = SV_WORD_MAP[key];
+    result = {
+      src: `${ARASAAC_IMG}/${id}/${id}_300.png`,
+      label: key,
+      source: 'arasaac-curated',
+      id: id
+    };
+  }
+
+  // 3. Fall back to ARASAAC search API
   if (!result && settings.sourceArasaac) {
     result = await searchArasaac(key);
   }

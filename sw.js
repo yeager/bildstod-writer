@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bildstod-writer-v1';
+const CACHE_NAME = 'bildstod-writer-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
