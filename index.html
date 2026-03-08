@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#1565C0">
+  <meta name="description" content="Skriv med bildstöd — skriv text och se piktogram för varje ord">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Skriv med bildstöd</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Header -->
+  <header id="app-header">
+    <div class="header-left">
+      <button id="btn-menu" class="icon-btn" aria-label="Meny" title="Meny">☰</button>
+      <h1>✏️ Skriv med bildstöd</h1>
+    </div>
+    <div class="header-right">
+      <button id="btn-clear" class="icon-btn" aria-label="Rensa" title="Rensa allt">🗑️</button>
+      <button id="btn-print" class="icon-btn" aria-label="Skriv ut" title="Skriv ut">🖨️</button>
+      <button id="btn-settings" class="icon-btn" aria-label="Inställningar" title="Inställningar">⚙️</button>
+    </div>
+  </header>
+
+  <!-- Symbol board (output) -->
+  <main id="symbol-board">
+    <div id="symbols" class="symbols-grid"></div>
+    <div id="empty-state" class="empty-state">
+      <div class="empty-icon">✏️</div>
+      <p>Skriv en mening nedan och se bildstöd för varje ord</p>
+      <p class="empty-hint">Tryck mellanslag eller Enter efter varje ord</p>
+    </div>
+  </main>
+
+  <!-- Text input area -->
+  <div id="input-area">
+    <div class="input-wrapper">
+      <textarea id="text-input" 
+                placeholder="Skriv här..." 
+                rows="2" 
+                autocomplete="off" 
+                autocorrect="on"
+                spellcheck="true"></textarea>
+      <button id="btn-speak" class="speak-btn" aria-label="Läs upp" title="Läs upp texten">🔊</button>
+    </div>
+    <div class="input-toolbar">
+      <button class="quick-btn" data-text="Jag vill">Jag vill</button>
+      <button class="quick-btn" data-text="Jag behöver">Jag behöver</button>
+      <button class="quick-btn" data-text="Kan jag få">Kan jag få</button>
+      <button class="quick-btn" data-text="Hjälp">Hjälp</button>
+      <button class="quick-btn" data-text="Ja">Ja</button>
+      <button class="quick-btn" data-text="Nej">Nej</button>
+      <button class="quick-btn" data-text="Tack">Tack</button>
+      <button class="quick-btn" data-text="Stopp">Stopp</button>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div id="settings-panel" class="panel hidden">
+    <div class="panel-header">
+      <h2>Inställningar</h2>
+      <button id="btn-close-settings" class="icon-btn">✕</button>
+    </div>
+    <div class="panel-body">
+      <label class="setting">
+        <span>Bildstorlek</span>
+        <select id="setting-size">
+          <option value="small">Liten (80px)</option>
+          <option value="medium" selected>Medium (120px)</option>
+          <option value="large">Stor (160px)</option>
+          <option value="xlarge">Extra stor (200px)</option>
+        </select>
+      </label>
+      <label class="setting">
+        <span>Visa text under bild</span>
+        <input type="checkbox" id="setting-show-text" checked>
+      </label>
+      <label class="setting">
+        <span>Visa text ovanför bild</span>
+        <input type="checkbox" id="setting-text-above">
+      </label>
+      <label class="setting">
+        <span>Textstorlek</span>
+        <select id="setting-font-size">
+          <option value="12">12px</option>
+          <option value="16" selected>16px</option>
+          <option value="20">20px</option>
+          <option value="24">24px</option>
+          <option value="28">28px</option>
+        </select>
+      </label>
+      <label class="setting">
+        <span>Kant runt bilder</span>
+        <input type="checkbox" id="setting-borders" checked>
+      </label>
+      <label class="setting">
+        <span>Bakgrundsfärg</span>
+        <select id="setting-bg">
+          <option value="#ffffff" selected>Vit</option>
+          <option value="#FFF9C4">Ljusgul</option>
+          <option value="#E3F2FD">Ljusblå</option>
+          <option value="#F3E5F5">Ljuslila</option>
+          <option value="#E8F5E9">Ljusgrön</option>
+        </select>
+      </label>
+      <label class="setting">
+        <span>Talhastighet</span>
+        <input type="range" id="setting-speech-rate" min="0.3" max="1.5" step="0.1" value="0.8">
+        <span id="speech-rate-label">0.8x</span>
+      </label>
+      <div class="setting-section">
+        <h3>Bildkällor</h3>
+        <label class="setting">
+          <span>Bildstöd (svenska/NPF)</span>
+          <input type="checkbox" id="setting-source-bildstod" checked>
+        </label>
+        <label class="setting">
+          <span>ARASAAC (internationella)</span>
+          <input type="checkbox" id="setting-source-arasaac" checked>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side menu -->
+  <div id="menu-overlay" class="overlay hidden"></div>
+  <nav id="side-menu" class="side-menu hidden">
+    <div class="menu-header">
+      <h2>✏️ Bildstöd</h2>
+      <button id="btn-close-menu" class="icon-btn">✕</button>
+    </div>
+    <ul>
+      <li><button id="menu-new">📄 Ny sida</button></li>
+      <li><button id="menu-save">💾 Spara mening</button></li>
+      <li><button id="menu-saved">📁 Sparade meningar</button></li>
+      <li><button id="menu-print">🖨️ Skriv ut</button></li>
+      <li><button id="menu-fullscreen">📺 Helskärm</button></li>
+      <li><hr></li>
+      <li><button id="menu-install">📲 Installera app</button></li>
+      <li><a href="/" class="menu-link">🏠 Tillbaka till autismappar.se</a></li>
+    </ul>
+    <div class="menu-footer">
+      <p>Bilder: <a href="/bildstod/">Bildstöd</a> + <a href="https://arasaac.org" target="_blank">ARASAAC</a></p>
+      <p class="license">CC BY-NC-SA 3.0</p>
+    </div>
+  </nav>
+
+  <!-- Saved sentences panel -->
+  <div id="saved-panel" class="panel hidden">
+    <div class="panel-header">
+      <h2>Sparade meningar</h2>
+      <button id="btn-close-saved" class="icon-btn">✕</button>
+    </div>
+    <div class="panel-body">
+      <div id="saved-list"></div>
+      <p id="saved-empty" class="empty-hint">Inga sparade meningar ännu</p>
+    </div>
+  </div>
+
+  <!-- Symbol picker (click on word to change symbol) -->
+  <div id="picker-overlay" class="overlay hidden"></div>
+  <div id="symbol-picker" class="picker hidden">
+    <div class="picker-header">
+      <h3 id="picker-word"></h3>
+      <button id="btn-close-picker" class="icon-btn">✕</button>
+    </div>
+    <div id="picker-results" class="picker-grid"></div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

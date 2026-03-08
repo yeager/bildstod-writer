@@ -1,0 +1,17 @@
+{
+  "name": "Skriv med bildstöd",
+  "short_name": "Bildstöd",
+  "description": "Skriv text och se piktogram för varje ord — visuellt kommunikationsstöd",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1565C0",
+  "background_color": "#ffffff",
+  "lang": "sv",
+  "categories": ["education", "utilities"],
+  "icons": [
+    { "src": "icons/icon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "icons/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "icons/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="80" fill="#1565C0"/>
+  <!-- Pencil -->
+  <rect x="140" y="120" width="40" height="250" rx="5" fill="#FFD700" stroke="#FFF" stroke-width="4" transform="rotate(-20 160 245)"/>
+  <polygon points="145,365 175,365 160,400" fill="#FFD5B0" stroke="#FFF" stroke-width="3" transform="rotate(-20 160 383)"/>
+  <!-- Picture frame (symbol) -->
+  <rect x="270" y="160" width="160" height="140" rx="12" fill="#FFF" stroke="#FFF" stroke-width="4"/>
+  <circle cx="310" cy="210" r="20" fill="#FFD700"/>
+  <path d="M275 280 L320 240 L360 270 L390 250 L425 280 L425 295 L275 295 Z" fill="#4CAF50"/>
+  <!-- Text lines -->
+  <rect x="270" y="330" width="160" height="12" rx="4" fill="rgba(255,255,255,.7)"/>
+  <rect x="270" y="355" width="120" height="10" rx="4" fill="rgba(255,255,255,.5)"/>
+</svg>
