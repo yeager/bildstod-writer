@@ -1,6 +1,12 @@
 // === Skriv med bildstöd — Symbol-supported writing PWA ===
 // Uses same ARASAAC lookup as autismapps launcher (15,607 sv translations)
 
+const APP_NAME = 'Skriv med bildstöd';
+const APP_VERSION = '1.4.0';
+const APP_AUTHOR = 'Daniel Nylander';
+const APP_LICENSE = 'Pictogram symbols: ARASAAC (CC BY-NC-SA 3.0) + Bildstöd (CC BY-NC-SA 3.0)';
+const APP_URL = 'https://autismappar.se/skriv/';
+
 const BILDSTOD_API = '/bildstod/api/pictograms.json';
 const ARASAAC_IMG = 'https://static.arasaac.org/pictograms';
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms';
@@ -535,8 +541,8 @@ function bindEvents() {
 
   el('btn-speak').addEventListener('click', () => speak(el('text-input').value));
   el('btn-clear').addEventListener('click', () => { el('text-input').value = ''; updateBoard(); });
-  el('btn-print').addEventListener('click', () => window.print());
-  el('menu-print')?.addEventListener('click', () => { closeMenu(); window.print(); });
+  el('btn-print').addEventListener('click', printWithFooter);
+  el('menu-print')?.addEventListener('click', () => { closeMenu(); printWithFooter(); });
 
   // Settings panel
   el('btn-settings').addEventListener('click', () => el('settings-panel').classList.remove('hidden'));
@@ -595,6 +601,29 @@ function openMenu() {
 function closeMenu() {
   el('side-menu').classList.add('hidden');
   el('menu-overlay').classList.add('hidden');
+}
+
+// === PRINT WITH FOOTER ===
+function printWithFooter() {
+  // Add print footer with app info
+  let footer = document.getElementById('print-footer');
+  if (!footer) {
+    footer = document.createElement('div');
+    footer.id = 'print-footer';
+    document.body.appendChild(footer);
+  }
+  const now = new Date().toLocaleDateString('sv-SE');
+  footer.innerHTML = `
+    <hr style="margin:16px 0 8px;border:none;border-top:1px solid #ccc;">
+    <div style="font-size:11px;color:#666;display:flex;justify-content:space-between;flex-wrap:wrap;">
+      <span>${APP_NAME} v${APP_VERSION} — ${APP_AUTHOR}</span>
+      <span>${APP_LICENSE}</span>
+    </div>
+    <div style="font-size:10px;color:#999;margin-top:2px;">
+      <span>${APP_URL} — ${now}</span>
+    </div>
+  `;
+  window.print();
 }
 
 // === HELPERS ===

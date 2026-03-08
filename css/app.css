@@ -190,7 +190,10 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #f5f5f
   #symbol-board { overflow: visible; padding: 0; }
   .symbols-grid { gap: 12px; }
   .symbol-card { break-inside: avoid; }
+  #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 16px; }
 }
+
+#print-footer { display: none; }
 
 /* === RESPONSIVE === */
 @media (max-width: 480px) {
