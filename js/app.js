@@ -5,6 +5,25 @@ const BILDSTOD_API = '/bildstod/api/pictograms.json';
 const ARASAAC_IMG = 'https://static.arasaac.org/pictograms';
 const ARASAAC_API = 'https://api.arasaac.org/v1/pictograms';
 
+// Core AAC words missing from arasaac-sv.json (only standalone words not in the lookup)
+const CORE_WORDS = {
+  // Pronouns (not in sv lookup as standalone)
+  'jag': 6632, 'du': 7090, 'han': 7091, 'hon': 7089, 'vi': 9811,
+  'mig': 6632, 'dig': 7090, 'oss': 9811, 'hen': 7089,
+  // Core verbs missing from sv lookup
+  'behöver': 5441, 'vill': 5441, 'har': 32761, 'är': 5560, 'kan': 8297,
+  'äter': 6456, 'dricker': 6061, 'leker': 23392, 'sover': 6479,
+  'går': 7132, 'springer': 4628, 'sitter': 6452, 'står': 4637,
+  'ser': 4607, 'tittar': 4607, 'hör': 2343, 'lyssnar': 2343,
+  'läser': 25191, 'skriver': 35720, 'ritar': 4588, 'sjunger': 4590,
+  'hjälper': 32648, 'gillar': 4581, 'gör': 8297, 'kommer': 4573,
+  'ger': 5479, 'tar': 5479, 'öppnar': 4599, 'stänger': 4620,
+  // Common adjectives/feelings
+  'hungrig': 6456, 'törstig': 6061, 'sjuk': 35549,
+  // Basic responses
+  'snälla': 8195, 'förlåt': 5542,
+};
+
 // State
 let bildstodData = null;   // Local Swedish/NPF pictograms
 let svLookup = null;        // 15,607 en→sv ARASAAC translations
@@ -90,12 +109,23 @@ async function findSymbol(word) {
     result = searchBildstod(key);
   }
 
-  // 2. Search Swedish ARASAAC lookup (15,607 translations from Danne's sv.po)
+  // 2. Check core AAC words (pronouns, verbs not in sv lookup)
+  if (!result && settings.sourceArasaac && CORE_WORDS[key]) {
+    const id = CORE_WORDS[key];
+    result = {
+      src: `${ARASAAC_IMG}/${id}/${id}_300.png`,
+      label: key,
+      source: 'arasaac-core',
+      id: id
+    };
+  }
+
+  // 3. Search Swedish ARASAAC lookup (15,607 translations from Danne's sv.po)
   if (!result && settings.sourceArasaac && svLookup) {
     result = searchSvLookup(key);
   }
 
-  // 3. Fallback: ARASAAC API search
+  // 4. Fallback: ARASAAC API search
   if (!result && settings.sourceArasaac) {
     result = await searchArasaacApi(key);
   }
@@ -104,7 +134,8 @@ async function findSymbol(word) {
   return result;
 }
 
-// Search local bildstöd pictograms (exact match on Swedish keywords)
+// Search local bildstöd pictograms
+// Only returns exact or word-boundary matches (not substrings like "bil" in "bildstöd")
 function searchBildstod(word) {
   if (!bildstodData?.pictograms) return null;
   
@@ -118,9 +149,20 @@ function searchBildstod(word) {
       const kwLower = kw.toLowerCase();
       let score = 0;
       
-      if (kwLower === word) score = 100;          // Exact
-      else if (kwLower.startsWith(word)) score = 80; // Prefix
-      else if (kwLower.includes(word)) score = 50;   // Contains
+      if (kwLower === word) {
+        score = 100; // Exact match
+      } else {
+        // For multi-word keywords, check if search word matches a complete word
+        const kwWords = kwLower.split(/[\s-]+/);
+        if (kwWords.includes(word)) {
+          score = 90; // Word boundary match ("lugna hörnan" matches "lugna")
+        }
+        // Only allow prefix/contains for longer search terms (5+ chars)
+        // This prevents "bil" matching "bildstöd", "bild", etc.
+        else if (word.length >= 5 && kwLower.startsWith(word)) {
+          score = 60;
+        }
+      }
       
       if (score > bestScore) {
         bestScore = score;
@@ -165,7 +207,9 @@ function searchSvLookup(word) {
     };
   }
   
-  // 3. Partial match — Swedish values first, then English keys
+  // 3. Partial match — only for words with 4+ chars (avoid "bil" → "bild", "is" → "islam")
+  if (word.length < 4) return null;
+  
   let bestSv = null;
   let bestEn = null;
   
@@ -173,7 +217,10 @@ function searchSvLookup(word) {
     if (!entry.id) continue;
     const svLower = entry.sv.toLowerCase();
     
-    if (!bestSv && svLower.startsWith(word)) {
+    // Only match if the search word matches a complete word boundary
+    // e.g. "åka" should match "åka buss" but "bil" should NOT match "bild"
+    const svWords = svLower.split(/[\s-]+/);
+    if (!bestSv && svWords.some(w => w === word)) {
       bestSv = {
         src: `${ARASAAC_IMG}/${entry.id}/${entry.id}_300.png`,
         label: entry.sv,
@@ -181,7 +228,15 @@ function searchSvLookup(word) {
         id: entry.id
       };
     }
-    if (!bestEn && en.startsWith(word)) {
+    if (!bestSv && svLower.startsWith(word + ' ')) {
+      bestSv = {
+        src: `${ARASAAC_IMG}/${entry.id}/${entry.id}_300.png`,
+        label: entry.sv,
+        source: 'arasaac-sv',
+        id: entry.id
+      };
+    }
+    if (!bestEn && en === word) {
       bestEn = {
         src: `${ARASAAC_IMG}/${entry.id}/${entry.id}_300.png`,
         label: entry.sv,
