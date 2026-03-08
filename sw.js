@@ -1,11 +1,12 @@
-const CACHE_NAME = 'bildstod-writer-v2';
+const CACHE_NAME = 'bildstod-writer-v3';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './css/app.css',
   './js/app.js',
   './manifest.json',
-  './icons/icon.svg'
+  './icons/icon.svg',
+  './arasaac-sv.json'
 ];
 
 self.addEventListener('install', (e) => {
