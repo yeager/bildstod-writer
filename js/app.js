@@ -179,6 +179,14 @@ function updateAllTranslatedText() {
   el('welcome-pictograms-available').textContent = t('welcome_pictograms_available');
   el('welcome-get-started').textContent = t('welcome_get_started');
   
+  // Example sentences
+  document.querySelectorAll('.example-btn[data-example-key]').forEach(btn => {
+    const key = btn.getAttribute('data-example-key');
+    const text = t(key);
+    btn.textContent = text;
+    btn.setAttribute('data-example', text);
+  });
+
   // Set language selector
   el('setting-language').value = getCurrentLanguage();
 }
@@ -733,6 +741,17 @@ function bindEvents() {
   el('btn-close-saved').addEventListener('click', () => el('saved-panel').classList.add('hidden'));
   el('btn-close-picker').addEventListener('click', closePicker);
   el('picker-overlay').addEventListener('click', closePicker);
+
+  // Example sentences
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      el('text-input').value = btn.dataset.example;
+      el('text-input').focus();
+      updateBoard();
+      // Hide examples after first use
+      el('example-sentences').classList.add('hidden');
+    });
+  });
 
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {

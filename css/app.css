@@ -3,6 +3,67 @@
 html { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 16px; }
 body { display: flex; flex-direction: column; height: 100dvh; background: #f5f5f5; overflow: hidden; }
 
+/* === WELCOME MODAL === */
+.welcome-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.welcome-overlay.hidden { display: none; }
+.welcome-modal {
+  background: #fff; border-radius: 16px; max-width: 440px; width: 100%;
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+  overflow: hidden; animation: welcomeIn .3s ease;
+}
+@keyframes welcomeIn {
+  from { transform: scale(.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.welcome-header {
+  background: linear-gradient(135deg, #1565C0, #0D47A1);
+  color: #fff; padding: 24px; text-align: center;
+}
+.welcome-header h2 { font-size: 1.3rem; font-weight: 700; }
+.welcome-body { padding: 20px 24px 24px; }
+.welcome-body p { margin-bottom: 12px; color: #555; font-size: .95rem; line-height: 1.5; }
+.welcome-body h3 { font-size: 1rem; color: #333; margin-bottom: 8px; }
+.welcome-body ul { list-style: none; margin-bottom: 16px; }
+.welcome-body li {
+  padding: 6px 0; padding-left: 24px; position: relative;
+  color: #444; font-size: .9rem; line-height: 1.4;
+}
+.welcome-body li::before {
+  content: '✓'; position: absolute; left: 0; color: #4CAF50; font-weight: 700;
+}
+#welcome-pictograms {
+  background: #E3F2FD; padding: 10px 14px; border-radius: 8px;
+  text-align: center; font-weight: 600; color: #1565C0; margin-bottom: 16px;
+}
+.welcome-btn {
+  display: block; width: 100%; padding: 14px;
+  background: #1565C0; color: #fff; border: none; border-radius: 10px;
+  font-size: 1.1rem; font-weight: 600; cursor: pointer;
+  transition: background .15s;
+}
+.welcome-btn:hover { background: #0D47A1; }
+.welcome-btn:active { background: #0A3D91; }
+
+/* === EXAMPLE SENTENCES === */
+.example-sentences {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 4px;
+  background: var(--board-bg, #fff);
+}
+.example-sentences.hidden { display: none; }
+.example-btn {
+  padding: 6px 12px; border-radius: 16px;
+  border: 1px solid #ddd; background: #f9f9f9; color: #666;
+  font-size: .8rem; cursor: pointer; transition: all .15s;
+  white-space: nowrap;
+}
+.example-btn:hover { background: #E3F2FD; border-color: #1565C0; color: #1565C0; }
+.example-label { font-size: .75rem; color: #aaa; margin-right: 4px; }
+
 /* === HEADER === */
 #app-header {
   display: flex; justify-content: space-between; align-items: center;

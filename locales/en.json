@@ -70,5 +70,9 @@
   "welcome_pictograms_available": "pictograms available",
   "welcome_get_started": "Get started",
   "alert_no_text_to_save": "No text to save",
-  "alert_saved": "Sentence saved!"
+  "alert_saved": "Sentence saved!",
+  "example_1": "I want to eat ice cream",
+  "example_2": "I am happy today",
+  "example_3": "Can I play outside",
+  "example_4": "I need help"
 }

@@ -70,5 +70,9 @@
   "welcome_pictograms_available": "piktogram tillgängliga",
   "welcome_get_started": "Kom igång",
   "alert_no_text_to_save": "Ingen text att spara",
-  "alert_saved": "Mening sparad!"
+  "alert_saved": "Mening sparad!",
+  "example_1": "Jag vill äta glass",
+  "example_2": "Jag är glad idag",
+  "example_3": "Kan jag leka ute",
+  "example_4": "Jag behöver hjälp"
 }

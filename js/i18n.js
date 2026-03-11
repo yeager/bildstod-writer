@@ -13,13 +13,13 @@ async function initI18n() {
 
   // Load translations
   try {
-    const resp = await fetch(`locales/${currentLang}.json`);
+    const resp = await fetch(`locales/${currentLang}.json?v=3`);
     translations = await resp.json();
   } catch (e) {
     console.warn('Failed to load translations, falling back to en');
     currentLang = 'en';
     try {
-      const resp = await fetch('locales/en.json');
+      const resp = await fetch('locales/en.json?v=3');
       translations = await resp.json();
     } catch {
       console.error('Critical: Could not load any translations');
@@ -51,7 +51,7 @@ async function setLanguage(lang) {
   localStorage.setItem('bildstod-writer-lang', lang);
   
   try {
-    const resp = await fetch(`locales/${lang}.json`);
+    const resp = await fetch(`locales/${lang}.json?v=3`);
     translations = await resp.json();
     document.documentElement.lang = lang;
     
