@@ -1,7 +1,7 @@
 {
   "app_name": "Skriv med bildstöd",
   "app_description": "Skriv text och se piktogram för varje ord",
-  "app_tagline": "Skrivverktyg med bildstöd för AAK-kommunikation",
+  "app_tagline": "Skrivverktyg med bildstöd för AKK-kommunikation",
   "header_menu": "Meny",
   "header_clear": "Rensa",
   "header_clear_all": "Rensa allt",
@@ -61,7 +61,7 @@
   "print_footer": "Skriv med bildstöd — en del av autismappar.se av Daniel Nylander",
   "title_field_placeholder": "Ange titel här...",
   "welcome_title": "Välkommen till Bildstöd",
-  "welcome_description": "Skrivverktyg med bildstöd för AAK-kommunikation",
+  "welcome_description": "Skrivverktyg med bildstöd för AKK-kommunikation",
   "welcome_how_to_use": "Så här använder du appen:",
   "welcome_step_1": "Skriv text i fältet nedan",
   "welcome_step_2": "Symboler visas automatiskt för varje ord",
