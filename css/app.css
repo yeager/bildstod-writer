@@ -184,16 +184,67 @@ body { display: flex; flex-direction: column; height: 100dvh; background: #f5f5f
 .saved-delete:hover { color: #e00; }
 
 /* === PRINT === */
+#print-header, #print-footer { display: none; }
+#title-area { display: none; } /* Hide interactive title input in print — shown via print-header */
+
 @media print {
-  #app-header, #input-area, .side-menu, .panel, .overlay, .picker { display: none !important; }
+  #app-header, #input-area, .side-menu, .panel, .overlay, .picker, #welcome-screen, #title-area { display: none !important; }
   body { height: auto; overflow: visible; }
-  #symbol-board { overflow: visible; padding: 0; }
+  #symbol-board { overflow: visible; padding: 16px 0; }
   .symbols-grid { gap: 12px; }
   .symbol-card { break-inside: avoid; }
-  #print-footer { display: block !important; position: fixed; bottom: 0; left: 0; right: 0; padding: 8px 16px; }
+
+  /* Print header: title centered, timestamp top-right */
+  #print-header {
+    display: flex !important;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    padding: 8px 16px 12px;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 8px;
+  }
+  .print-title-text {
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+  }
+  .print-timestamp {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 0.8rem;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  /* Print footer: bottom-left */
+  #print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px 16px;
+    border-top: 1px solid #ccc;
+  }
+  .print-footer-text {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: left;
+  }
 }
 
-#print-footer { display: none; }
+/* Title area — visible on screen for input */
+#title-area { display: block; padding: 8px 12px 0; background: var(--board-bg, #fff); }
+#title-input {
+  width: 100%; border: 1px dashed #ccc; border-radius: 6px;
+  padding: 8px 12px; font-size: 1.1rem; font-weight: 700; text-align: center;
+  font-family: inherit; outline: none; background: transparent;
+}
+#title-input:focus { border-color: #1565C0; border-style: solid; }
+#title-input::placeholder { font-weight: 400; color: #aaa; }
 
 /* === RESPONSIVE === */
 @media (max-width: 480px) {

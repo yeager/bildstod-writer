@@ -1,8 +1,7 @@
 // === Skriv med bildstöd — Symbol-supported writing PWA ===
 // Uses same ARASAAC lookup as autismapps launcher (15,607 sv translations)
 
-const APP_NAME = 'Skriv med bildstöd';
-const APP_VERSION = '1.4.0';
+const APP_VERSION = '2.0.0';
 const APP_AUTHOR = 'Daniel Nylander';
 const APP_LICENSE = 'Pictogram symbols: ARASAAC (CC BY-NC-SA 3.0) + Bildstöd (CC BY-NC-SA 3.0)';
 const APP_URL = 'https://autismappar.se/skriv/';
@@ -28,6 +27,17 @@ const CORE_WORDS = {
   'hungrig': 6456, 'törstig': 6061, 'sjuk': 35549,
   // Basic responses
   'snälla': 8195, 'förlåt': 5542,
+  // English equivalents
+  'i': 6632, 'you': 7090, 'he': 7091, 'she': 7089, 'we': 9811,
+  'me': 6632, 'want': 5441, 'need': 5441, 'have': 32761, 'am': 5560,
+  'eat': 6456, 'drink': 6061, 'play': 23392, 'sleep': 6479,
+  'go': 7132, 'run': 4628, 'sit': 6452, 'stand': 4637,
+  'see': 4607, 'look': 4607, 'hear': 2343, 'listen': 2343,
+  'read': 25191, 'write': 35720, 'draw': 4588, 'sing': 4590,
+  'help': 32648, 'like': 4581, 'do': 8297, 'come': 4573,
+  'give': 5479, 'take': 5479, 'open': 4599, 'close': 4620,
+  'hungry': 6456, 'thirsty': 6061, 'sick': 35549,
+  'please': 8195, 'sorry': 5542,
 };
 
 // State
@@ -39,11 +49,139 @@ let settings = loadSettings();
 
 // === INIT ===
 document.addEventListener('DOMContentLoaded', async () => {
+  // Initialize i18n first
+  await initI18n();
+  
+  // Load data and set up app
   await Promise.all([loadBildstod(), loadSvLookup()]);
   applySettings();
+  updateAllTranslatedText();
   bindEvents();
   registerSW();
+  
+  // Show welcome screen on first visit
+  checkWelcomeScreen();
 });
+
+function checkWelcomeScreen() {
+  const welcomed = localStorage.getItem('bildstod-writer-welcomed');
+  if (!welcomed) {
+    showWelcomeScreen();
+  }
+}
+
+function showWelcomeScreen() {
+  // Update pictogram count
+  const bildstodCount = bildstodData?.pictograms?.length || 0;
+  const arasaacCount = svLookup ? Object.keys(svLookup).length : 0;
+  const totalCount = bildstodCount + arasaacCount;
+  el('pictogram-count').textContent = totalCount.toLocaleString();
+  
+  el('welcome-screen').classList.remove('hidden');
+}
+
+function hideWelcomeScreen() {
+  el('welcome-screen').classList.add('hidden');
+  localStorage.setItem('bildstod-writer-welcomed', 'true');
+}
+
+// Update all UI text with translations
+function updateAllTranslatedText() {
+  // Update document title and meta
+  document.title = t('app_name');
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc) metaDesc.content = t('app_description');
+  
+  // Header elements
+  el('app-title').textContent = '✏️ ' + t('app_name');
+  el('btn-menu').setAttribute('aria-label', t('header_menu'));
+  el('btn-menu').setAttribute('title', t('header_menu'));
+  el('btn-clear').setAttribute('aria-label', t('header_clear'));
+  el('btn-clear').setAttribute('title', t('header_clear_all'));
+  el('btn-print').setAttribute('aria-label', t('header_print'));
+  el('btn-print').setAttribute('title', t('header_print'));
+  el('btn-settings').setAttribute('aria-label', t('header_settings'));
+  el('btn-settings').setAttribute('title', t('header_settings'));
+  
+  // Title input
+  el('title-input').placeholder = t('title_field_placeholder');
+  el('title-input').setAttribute('aria-label', t('title_field_placeholder'));
+  
+  // Empty state
+  el('empty-state-text').textContent = t('empty_state_text');
+  el('empty-state-hint').textContent = t('empty_state_hint');
+  
+  // Text input
+  el('text-input').placeholder = t('input_placeholder');
+  el('btn-speak').setAttribute('aria-label', t('btn_speak'));
+  el('btn-speak').setAttribute('title', t('btn_speak_title'));
+  
+  // Quick phrase buttons
+  document.querySelectorAll('.quick-btn[data-text-key]').forEach(btn => {
+    const key = btn.getAttribute('data-text-key');
+    const text = t(key);
+    btn.textContent = text;
+    btn.setAttribute('data-text', text);
+  });
+  
+  // Settings panel
+  el('settings-title').textContent = t('settings_title');
+  el('settings-image-size-label').textContent = t('settings_image_size');
+  el('settings-show-text-below-label').textContent = t('settings_show_text_below');
+  el('settings-show-text-above-label').textContent = t('settings_show_text_above');
+  el('settings-text-size-label').textContent = t('settings_text_size');
+  el('settings-image-borders-label').textContent = t('settings_image_borders');
+  el('settings-background-color-label').textContent = t('settings_background_color');
+  el('settings-speech-rate-label').textContent = t('settings_speech_rate');
+  el('settings-image-sources-label').textContent = t('settings_image_sources');
+  el('settings-source-bildstod-label').textContent = t('settings_source_bildstod');
+  el('settings-source-arasaac-label').textContent = t('settings_source_arasaac');
+  el('settings-language-label').textContent = t('settings_language');
+  
+  // Update select options
+  const sizeSelect = el('setting-size');
+  sizeSelect.options[0].textContent = t('settings_image_size_small');
+  sizeSelect.options[1].textContent = t('settings_image_size_medium');
+  sizeSelect.options[2].textContent = t('settings_image_size_large');
+  sizeSelect.options[3].textContent = t('settings_image_size_xlarge');
+  
+  const bgSelect = el('setting-bg');
+  bgSelect.options[0].textContent = t('settings_bg_white');
+  bgSelect.options[1].textContent = t('settings_bg_yellow');
+  bgSelect.options[2].textContent = t('settings_bg_blue');
+  bgSelect.options[3].textContent = t('settings_bg_purple');
+  bgSelect.options[4].textContent = t('settings_bg_green');
+  
+  // Menu
+  el('menu-title').textContent = '✏️ ' + t('menu_title');
+  el('menu-new-text').textContent = t('menu_new');
+  el('menu-save-text').textContent = t('menu_save');
+  el('menu-saved-text').textContent = t('menu_saved');
+  el('menu-print-text').textContent = t('menu_print');
+  el('menu-fullscreen-text').textContent = t('menu_fullscreen');
+  el('menu-about-text').textContent = t('menu_about');
+  el('menu-install-text').textContent = t('menu_install');
+  el('menu-home-text').textContent = t('menu_home_link');
+  el('menu-footer-images').textContent = t('menu_footer_images');
+  
+  // Saved sentences
+  el('saved-panel-title').textContent = t('saved_title');
+  el('saved-empty').textContent = t('saved_empty');
+  
+  // Welcome screen
+  el('welcome-title').textContent = t('welcome_title');
+  el('welcome-description').textContent = t('welcome_description');
+  el('welcome-how-to-title').textContent = t('welcome_how_to_use');
+  el('welcome-step-1').textContent = t('welcome_step_1');
+  el('welcome-step-2').textContent = t('welcome_step_2');
+  el('welcome-step-3').textContent = t('welcome_step_3');
+  el('welcome-step-4').textContent = t('welcome_step_4');
+  el('welcome-pictograms-available').textContent = t('welcome_pictograms_available');
+  el('welcome-get-started').textContent = t('welcome_get_started');
+  
+  // Set language selector
+  el('setting-language').value = getCurrentLanguage();
+}
 
 async function loadBildstod() {
   try {
@@ -339,10 +477,10 @@ async function updateBoard() {
 async function openPicker(word, index) {
   const pickerEl = el('symbol-picker');
   const overlay = el('picker-overlay');
-  el('picker-word').textContent = `"${word}" — välj bild`;
+  el('picker-word').textContent = `"${word}" — ${t('picker_choose_image')}`;
 
   const results = el('picker-results');
-  results.innerHTML = '<p style="color:#999;padding:12px">Söker...</p>';
+  results.innerHTML = `<p style="color:#999;padding:12px">${t('picker_searching')}</p>`;
   
   pickerEl.classList.remove('hidden');
   overlay.classList.remove('hidden');
@@ -429,7 +567,7 @@ async function openPicker(word, index) {
   }
 
   if (alternatives.length === 0) {
-    results.innerHTML = '<p style="color:#999;padding:12px">Inga bilder hittades</p>';
+    results.innerHTML = `<p style="color:#999;padding:12px">${t('picker_no_images')}</p>`;
     return;
   }
 
@@ -457,11 +595,15 @@ function speak(text) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'sv-SE';
+  
+  // Set language based on current locale
+  const lang = getCurrentLanguage();
+  utt.lang = lang === 'sv' ? 'sv-SE' : 'en-US';
   utt.rate = settings.speechRate;
+  
   const voices = speechSynthesis.getVoices();
-  const svVoice = voices.find(v => v.lang.startsWith('sv'));
-  if (svVoice) utt.voice = svVoice;
+  const langVoice = voices.find(v => v.lang.startsWith(lang));
+  if (langVoice) utt.voice = langVoice;
   speechSynthesis.speak(utt);
 }
 
@@ -474,12 +616,16 @@ function setSaved(arr) { localStorage.setItem('bildstod-writer-saved', JSON.stri
 
 function saveCurrent() {
   const text = el('text-input').value.trim();
-  if (!text) return;
+  if (!text) {
+    alert(t('alert_no_text_to_save'));
+    return;
+  }
   const saved = getSaved();
   if (!saved.includes(text)) {
     saved.unshift(text);
     if (saved.length > 50) saved.pop();
     setSaved(saved);
+    alert(t('alert_saved'));
   }
 }
 
@@ -539,8 +685,11 @@ function bindEvents() {
     });
   });
 
+  // Welcome screen
+  el('welcome-get-started').addEventListener('click', hideWelcomeScreen);
+
   el('btn-speak').addEventListener('click', () => speak(el('text-input').value));
-  el('btn-clear').addEventListener('click', () => { el('text-input').value = ''; updateBoard(); });
+  el('btn-clear').addEventListener('click', () => { el('text-input').value = ''; el('title-input').value = ''; updateBoard(); });
   el('btn-print').addEventListener('click', printWithFooter);
   el('menu-print')?.addEventListener('click', () => { closeMenu(); printWithFooter(); });
 
@@ -562,13 +711,19 @@ function bindEvents() {
   el('setting-source-bildstod').addEventListener('change', (e) => { settings.sourceBildstod = e.target.checked; saveSettings(); symbolCache.clear(); updateBoard(); });
   el('setting-source-arasaac').addEventListener('change', (e) => { settings.sourceArasaac = e.target.checked; saveSettings(); symbolCache.clear(); updateBoard(); });
 
+  // Language selector
+  el('setting-language').addEventListener('change', async (e) => {
+    await setLanguage(e.target.value);
+  });
+
   // Menu
   el('btn-menu').addEventListener('click', openMenu);
   el('btn-close-menu').addEventListener('click', closeMenu);
   el('menu-overlay').addEventListener('click', closeMenu);
-  el('menu-new').addEventListener('click', () => { el('text-input').value = ''; updateBoard(); closeMenu(); });
+  el('menu-new').addEventListener('click', () => { el('text-input').value = ''; el('title-input').value = ''; updateBoard(); closeMenu(); });
   el('menu-save').addEventListener('click', () => { saveCurrent(); closeMenu(); });
   el('menu-saved').addEventListener('click', () => { showSaved(); el('saved-panel').classList.remove('hidden'); closeMenu(); });
+  el('menu-about').addEventListener('click', () => { showWelcomeScreen(); closeMenu(); });
   el('menu-fullscreen')?.addEventListener('click', () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else document.documentElement.requestFullscreen?.();
@@ -605,24 +760,28 @@ function closeMenu() {
 
 // === PRINT WITH FOOTER ===
 function printWithFooter() {
-  // Add print footer with app info
-  let footer = document.getElementById('print-footer');
-  if (!footer) {
-    footer = document.createElement('div');
-    footer.id = 'print-footer';
-    document.body.appendChild(footer);
+  const title = el('title-input').value.trim();
+  
+  // Update print header: title (bold centered) + timestamp (top-right)
+  const printTitleEl = document.querySelector('.print-title-text');
+  if (printTitleEl) {
+    printTitleEl.textContent = title || '';
   }
-  const now = new Date().toLocaleDateString('sv-SE');
-  footer.innerHTML = `
-    <hr style="margin:16px 0 8px;border:none;border-top:1px solid #ccc;">
-    <div style="font-size:11px;color:#666;display:flex;justify-content:space-between;flex-wrap:wrap;">
-      <span>${APP_NAME} v${APP_VERSION} — ${APP_AUTHOR}</span>
-      <span>${APP_LICENSE}</span>
-    </div>
-    <div style="font-size:10px;color:#999;margin-top:2px;">
-      <span>${APP_URL} — ${now}</span>
-    </div>
-  `;
+  
+  const now = new Date();
+  const timestamp = now.toLocaleDateString('sv-SE') + ' ' + 
+                   now.toTimeString().substring(0, 5);
+  const printTimestamp = document.querySelector('.print-timestamp');
+  if (printTimestamp) {
+    printTimestamp.textContent = timestamp;
+  }
+  
+  // Update footer text (bottom-left)
+  const footerText = document.querySelector('.print-footer-text');
+  if (footerText) {
+    footerText.textContent = t('print_footer');
+  }
+  
   window.print();
 }
 

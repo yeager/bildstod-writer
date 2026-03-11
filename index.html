@@ -1,39 +1,67 @@
 <!DOCTYPE html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#1565C0">
-  <meta name="description" content="Skriv med bildstöd — skriv text och se piktogram för varje ord">
+  <meta name="description" content="Write text and see pictograms for each word — visual communication support">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Skriv med bildstöd</title>
+  <title>Write with Symbol Support</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
+  <!-- Welcome screen -->
+  <div id="welcome-screen" class="welcome-overlay hidden">
+    <div class="welcome-modal">
+      <div class="welcome-header">
+        <h2 id="welcome-title">Welcome to Symbol Support</h2>
+      </div>
+      <div class="welcome-body">
+        <p id="welcome-description">Symbol-supported writing tool for AAC communication</p>
+        <div id="welcome-how-to">
+          <h3 id="welcome-how-to-title">How to use:</h3>
+          <ul>
+            <li id="welcome-step-1">Type text in the input field below</li>
+            <li id="welcome-step-2">Symbols appear automatically for each word</li>
+            <li id="welcome-step-3">Click on any symbol to change it</li>
+            <li id="welcome-step-4">Print or save your sentences</li>
+          </ul>
+        </div>
+        <p id="welcome-pictograms"><span id="pictogram-count">0</span> <span id="welcome-pictograms-available">pictograms available</span></p>
+        <button id="welcome-get-started" class="welcome-btn">Get started</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header id="app-header">
     <div class="header-left">
-      <button id="btn-menu" class="icon-btn" aria-label="Meny" title="Meny">☰</button>
-      <h1>✏️ Skriv med bildstöd</h1>
+      <button id="btn-menu" class="icon-btn" aria-label="Menu" title="Menu">☰</button>
+      <h1 id="app-title">✏️ Write with Symbol Support</h1>
     </div>
     <div class="header-right">
-      <button id="btn-clear" class="icon-btn" aria-label="Rensa" title="Rensa allt">🗑️</button>
-      <button id="btn-print" class="icon-btn" aria-label="Skriv ut" title="Skriv ut">🖨️</button>
-      <button id="btn-settings" class="icon-btn" aria-label="Inställningar" title="Inställningar">⚙️</button>
+      <button id="btn-clear" class="icon-btn" aria-label="Clear" title="Clear all">🗑️</button>
+      <button id="btn-print" class="icon-btn" aria-label="Print" title="Print">🖨️</button>
+      <button id="btn-settings" class="icon-btn" aria-label="Settings" title="Settings">⚙️</button>
     </div>
   </header>
+
+  <!-- Title field for print -->
+  <div id="title-area">
+    <input type="text" id="title-input" placeholder="Enter title here..." aria-label="Title for print">
+  </div>
 
   <!-- Symbol board (output) -->
   <main id="symbol-board">
     <div id="symbols" class="symbols-grid"></div>
     <div id="empty-state" class="empty-state">
       <div class="empty-icon">✏️</div>
-      <p>Skriv en mening nedan och se bildstöd för varje ord</p>
-      <p class="empty-hint">Tryck mellanslag eller Enter efter varje ord</p>
+      <p id="empty-state-text">Write a sentence below and see symbol support for each word</p>
+      <p id="empty-state-hint" class="empty-hint">Press space or Enter after each word</p>
     </div>
   </main>
 
@@ -41,51 +69,51 @@
   <div id="input-area">
     <div class="input-wrapper">
       <textarea id="text-input" 
-                placeholder="Skriv här..." 
+                placeholder="Type here..." 
                 rows="2" 
                 autocomplete="off" 
                 autocorrect="on"
                 spellcheck="true"></textarea>
-      <button id="btn-speak" class="speak-btn" aria-label="Läs upp" title="Läs upp texten">🔊</button>
+      <button id="btn-speak" class="speak-btn" aria-label="Read aloud" title="Read the text aloud">🔊</button>
     </div>
     <div class="input-toolbar">
-      <button class="quick-btn" data-text="Jag vill">Jag vill</button>
-      <button class="quick-btn" data-text="Jag behöver">Jag behöver</button>
-      <button class="quick-btn" data-text="Kan jag få">Kan jag få</button>
-      <button class="quick-btn" data-text="Hjälp">Hjälp</button>
-      <button class="quick-btn" data-text="Ja">Ja</button>
-      <button class="quick-btn" data-text="Nej">Nej</button>
-      <button class="quick-btn" data-text="Tack">Tack</button>
-      <button class="quick-btn" data-text="Stopp">Stopp</button>
+      <button class="quick-btn" data-text-key="quick_phrase_i_want" data-text="I want">I want</button>
+      <button class="quick-btn" data-text-key="quick_phrase_i_need" data-text="I need">I need</button>
+      <button class="quick-btn" data-text-key="quick_phrase_can_i_have" data-text="Can I have">Can I have</button>
+      <button class="quick-btn" data-text-key="quick_phrase_help" data-text="Help">Help</button>
+      <button class="quick-btn" data-text-key="quick_phrase_yes" data-text="Yes">Yes</button>
+      <button class="quick-btn" data-text-key="quick_phrase_no" data-text="No">No</button>
+      <button class="quick-btn" data-text-key="quick_phrase_thanks" data-text="Thanks">Thanks</button>
+      <button class="quick-btn" data-text-key="quick_phrase_stop" data-text="Stop">Stop</button>
     </div>
   </div>
 
   <!-- Settings panel -->
   <div id="settings-panel" class="panel hidden">
     <div class="panel-header">
-      <h2>Inställningar</h2>
+      <h2 id="settings-title">Settings</h2>
       <button id="btn-close-settings" class="icon-btn">✕</button>
     </div>
     <div class="panel-body">
       <label class="setting">
-        <span>Bildstorlek</span>
+        <span id="settings-image-size-label">Image size</span>
         <select id="setting-size">
-          <option value="small">Liten (80px)</option>
+          <option value="small">Small (80px)</option>
           <option value="medium" selected>Medium (120px)</option>
-          <option value="large">Stor (160px)</option>
-          <option value="xlarge">Extra stor (200px)</option>
+          <option value="large">Large (160px)</option>
+          <option value="xlarge">Extra large (200px)</option>
         </select>
       </label>
       <label class="setting">
-        <span>Visa text under bild</span>
+        <span id="settings-show-text-below-label">Show text below image</span>
         <input type="checkbox" id="setting-show-text" checked>
       </label>
       <label class="setting">
-        <span>Visa text ovanför bild</span>
+        <span id="settings-show-text-above-label">Show text above image</span>
         <input type="checkbox" id="setting-text-above">
       </label>
       <label class="setting">
-        <span>Textstorlek</span>
+        <span id="settings-text-size-label">Text size</span>
         <select id="setting-font-size">
           <option value="12">12px</option>
           <option value="16" selected>16px</option>
@@ -95,33 +123,43 @@
         </select>
       </label>
       <label class="setting">
-        <span>Kant runt bilder</span>
+        <span id="settings-image-borders-label">Border around images</span>
         <input type="checkbox" id="setting-borders" checked>
       </label>
       <label class="setting">
-        <span>Bakgrundsfärg</span>
+        <span id="settings-background-color-label">Background color</span>
         <select id="setting-bg">
-          <option value="#ffffff" selected>Vit</option>
-          <option value="#FFF9C4">Ljusgul</option>
-          <option value="#E3F2FD">Ljusblå</option>
-          <option value="#F3E5F5">Ljuslila</option>
-          <option value="#E8F5E9">Ljusgrön</option>
+          <option value="#ffffff" selected>White</option>
+          <option value="#FFF9C4">Light yellow</option>
+          <option value="#E3F2FD">Light blue</option>
+          <option value="#F3E5F5">Light purple</option>
+          <option value="#E8F5E9">Light green</option>
         </select>
       </label>
       <label class="setting">
-        <span>Talhastighet</span>
+        <span id="settings-speech-rate-label">Speech rate</span>
         <input type="range" id="setting-speech-rate" min="0.3" max="1.5" step="0.1" value="0.8">
         <span id="speech-rate-label">0.8x</span>
       </label>
       <div class="setting-section">
-        <h3>Bildkällor</h3>
+        <h3 id="settings-image-sources-label">Image sources</h3>
         <label class="setting">
-          <span>Bildstöd (svenska/NPF)</span>
+          <span id="settings-source-bildstod-label">Bildstöd (Swedish/NPF)</span>
           <input type="checkbox" id="setting-source-bildstod" checked>
         </label>
         <label class="setting">
-          <span>ARASAAC (internationella)</span>
+          <span id="settings-source-arasaac-label">ARASAAC (international)</span>
           <input type="checkbox" id="setting-source-arasaac" checked>
+        </label>
+      </div>
+      <div class="setting-section">
+        <h3 id="settings-language-label">Language</h3>
+        <label class="setting">
+          <span></span>
+          <select id="setting-language">
+            <option value="en">English</option>
+            <option value="sv">Svenska</option>
+          </select>
         </label>
       </div>
     </div>
@@ -131,21 +169,22 @@
   <div id="menu-overlay" class="overlay hidden"></div>
   <nav id="side-menu" class="side-menu hidden">
     <div class="menu-header">
-      <h2>✏️ Bildstöd</h2>
+      <h2 id="menu-title">✏️ Symbol Support</h2>
       <button id="btn-close-menu" class="icon-btn">✕</button>
     </div>
     <ul>
-      <li><button id="menu-new">📄 Ny sida</button></li>
-      <li><button id="menu-save">💾 Spara mening</button></li>
-      <li><button id="menu-saved">📁 Sparade meningar</button></li>
-      <li><button id="menu-print">🖨️ Skriv ut</button></li>
-      <li><button id="menu-fullscreen">📺 Helskärm</button></li>
+      <li><button id="menu-new">📄 <span id="menu-new-text">New page</span></button></li>
+      <li><button id="menu-save">💾 <span id="menu-save-text">Save sentence</span></button></li>
+      <li><button id="menu-saved">📁 <span id="menu-saved-text">Saved sentences</span></button></li>
+      <li><button id="menu-print">🖨️ <span id="menu-print-text">Print</span></button></li>
+      <li><button id="menu-fullscreen">📺 <span id="menu-fullscreen-text">Fullscreen</span></button></li>
+      <li><button id="menu-about">ℹ️ <span id="menu-about-text">About</span></button></li>
       <li><hr></li>
-      <li><button id="menu-install">📲 Installera app</button></li>
-      <li><a href="/" class="menu-link">🏠 Tillbaka till autismappar.se</a></li>
+      <li><button id="menu-install">📲 <span id="menu-install-text">Install app</span></button></li>
+      <li><a href="/" class="menu-link" id="menu-home">🏠 <span id="menu-home-text">Back to autismappar.se</span></a></li>
     </ul>
     <div class="menu-footer">
-      <p>Bilder: <a href="/bildstod/">Bildstöd</a> + <a href="https://arasaac.org" target="_blank">ARASAAC</a></p>
+      <p><span id="menu-footer-images">Images:</span> <a href="/bildstod/">Bildstöd</a> + <a href="https://arasaac.org" target="_blank">ARASAAC</a></p>
       <p class="license">CC BY-NC-SA 3.0</p>
     </div>
   </nav>
@@ -153,12 +192,12 @@
   <!-- Saved sentences panel -->
   <div id="saved-panel" class="panel hidden">
     <div class="panel-header">
-      <h2>Sparade meningar</h2>
+      <h2 id="saved-panel-title">Saved sentences</h2>
       <button id="btn-close-saved" class="icon-btn">✕</button>
     </div>
     <div class="panel-body">
       <div id="saved-list"></div>
-      <p id="saved-empty" class="empty-hint">Inga sparade meningar ännu</p>
+      <p id="saved-empty" class="empty-hint">No saved sentences yet</p>
     </div>
   </div>
 
@@ -172,6 +211,18 @@
     <div id="picker-results" class="picker-grid"></div>
   </div>
 
+  <!-- Print header (hidden, only visible in print) -->
+  <div id="print-header" class="print-only">
+    <div class="print-title-text"></div>
+    <div class="print-timestamp"></div>
+  </div>
+
+  <!-- Print footer (hidden, only visible in print) -->
+  <div id="print-footer" class="print-only">
+    <div class="print-footer-text">Write with Symbol Support — part of autismappar.se by Daniel Nylander</div>
+  </div>
+
+  <script src="js/i18n.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
