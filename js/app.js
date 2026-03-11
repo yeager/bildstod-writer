@@ -311,7 +311,7 @@ function searchBildstod(word) {
       if (score > bestScore) {
         bestScore = score;
         bestMatch = {
-          src: `/bildstod/${p.files.png_500}`,
+          src: `/bildstod/${p.png || p.files?.png_500 || p.svg}`,
           label: svKeys[0],
           source: 'bildstod',
           id: p.id
@@ -498,7 +498,7 @@ async function openPicker(word, index) {
           const id = p.id + 900000;
           if (!seenIds.has(id)) {
             alternatives.push({
-              src: `/bildstod/${p.files.png_500}`,
+              src: `/bildstod/${p.png || p.files?.png_500 || p.svg}`,
               label: svKeys[0],
               source: 'bildstod',
               id: id
